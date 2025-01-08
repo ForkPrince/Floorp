@@ -18,10 +18,6 @@ on:
         type: boolean
         description: Build aarch64; does NOT comportable with pgo
         required: true
-      bit-32:
-        type: boolean
-        description: Build 32bit; does NOT comportable with aarch64
-        required: true
 
 run-name: ${{fromJSON('["[NO PGO]","[PGO]"]')[inputs.profgen]}} Windows ${{fromJson('["AMD","AARCH"]')[inputs.aarch64]}} ${{fromJson('["64bit","32bit"]')[inputs.bit-32]}} build
 jobs:
@@ -31,6 +27,5 @@ jobs:
     with:
       profgen: ${{inputs.profgen}}
       aarch64: ${{inputs.aarch64}}
-      build32bit: ${{inputs.bit-32}}
     secrets:
       PAT: ${{ secrets.PAT }}
