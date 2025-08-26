@@ -46,7 +46,7 @@ on:
       skip_signing:
         type: boolean
         required: false
-        default: false
+        default: true
         description: "Skip code signing process"
 
 run-name: 📦️ Package ${{ inputs.platform }}${{ inputs.skip_signing && ' (Unsigned)' || '' }}
@@ -99,6 +99,10 @@ jobs:
           deno task build --write-version
           cd ..
 
+      - name: Modify mozconfig
+        run: |
+          sed -i 's/^ac_add_options --target=x86_64-pc-windows-msvc/ac_add_options --target=aarch64-pc-windows-msvc/' ./.github/workflows/mozconfigs/win64.mozconfig
+
       - name: Mach configure
         shell: zx --verbose {0}
         env:
@@ -107,8 +111,6 @@ jobs:
           IS_BETA: ${{ inputs.beta }}
         run: |
           await $`echo "ac_add_options --enable-chrome-format=flat" >> mozconfig`;
-
-          sed -i 's/^ac_add_options --target=x86_64-pc-windows-msvc/ac_add_options --target=aarch64-pc-windows-msvc/' ./.github/workflows/mozconfigs/win64.mozconfig
 
           // Copy appropriate mozconfig based on platform
           const mozconfigs = {
