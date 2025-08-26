@@ -26,7 +26,7 @@ on:
       skip_signing:
         type: boolean
         required: false
-        default: false
+        default: true
         description: "Skip code signing process"
 
   workflow_call:
@@ -108,7 +108,7 @@ jobs:
         run: |
           await $`echo "ac_add_options --enable-chrome-format=flat" >> mozconfig`;
 
-          ls ./.github/workflows/mozconfigs
+          sed -i 's/^ac_add_options --target=x86_64-pc-windows-msvc/ac_add_options --target=aarch64-pc-windows-msvc/' ./.github/workflows/mozconfigs/win64.mozconfig
 
           // Copy appropriate mozconfig based on platform
           const mozconfigs = {
@@ -189,7 +189,7 @@ jobs:
             // Set update URL based on platform
             const baseUrl = 'github.com/Floorp-Projects/Floorp/releases/download/beta/';
             const platformUrls = {
-              'Windows-x64': `${baseUrl}WINNT_x86_64-msvc-x64.`,
+              'Windows-x64': `${baseUrl}WINNT_aarch64-msvc-arm64.`,
               'Linux-x64': `${baseUrl}Linux_x86_64.`,
               'Linux-aarch64': `${baseUrl}Linux_aarch64.`,
               'macOS-x64': `${baseUrl}Darwin_Universal.`
@@ -221,7 +221,7 @@ jobs:
             // Set update URL based on platform
             const baseUrl = `updates.floorp.app/browser/stable/`;
             const platformUrls = {
-              'Windows-x64': `${baseUrl}WINNT/x86_64/`,
+              'Windows-x64': `${baseUrl}WINNT/aarch64/`,
               'Linux-x64': `${baseUrl}Linux/x86_64/`,
               'Linux-aarch64': `${baseUrl}Linux/aarch64/`,
               'macOS-x64': `${baseUrl}Darwin/x86_64/`
@@ -288,11 +288,11 @@ jobs:
           }
           switch (process.env.BUILD_PLATFORM) {
             case "Windows-x64":
-              await addToENV("ARTIFACT_NAME","floorp-win-amd64-moz-artifact");
-              await addToENV("ARTIFACT_FROM_RELEASE_NAME","floorp-win-amd64-moz-artifact.zip");
-              await addToENV("OUTPUT_NAME","win-amd64");
+              await addToENV("ARTIFACT_NAME","floorp-win-arm64-moz-artifact");
+              await addToENV("ARTIFACT_FROM_RELEASE_NAME","floorp-win-arm64-moz-artifact.zip");
+              await addToENV("OUTPUT_NAME","win-arm64");
               await $`echo "INSTALLER_PATH=*installer.exe" >> $GITHUB_ENV`;
-              await addToENV("OUTPUT_INSTALLER_NAME","floorp-win64.installer.exe");
+              await addToENV("OUTPUT_INSTALLER_NAME","floorp-win-arm64.installer.exe");
               await $`echo "WORKSPACE_HOME=$GITHUB_WORKSPACE" >> $GITHUB_ENV`;
               break;
             case "Linux-x64":
@@ -338,7 +338,7 @@ jobs:
           mkdir -p ~/artifacts
           cd ~/downloads
           if [ "${{inputs.platform}}" == "Windows-x64" ]; then
-            zip -r ~/artifacts/floorp-win-amd64-moz-artifact.zip ./*
+            zip -r ~/artifacts/floorp-win-arm64-moz-artifact.zip ./*
           else
             cp -r ~/downloads/* ~/artifacts
           fi
@@ -367,7 +367,7 @@ jobs:
       - name: Build
         run: |
           if [ "${{inputs.platform}}" == "Windows-x64" ]; then
-            MOZ_ARTIFACT_FILE=$(echo ~/artifacts/floorp-win-amd64-moz-artifact.zip) ./mach build
+            MOZ_ARTIFACT_FILE=$(echo ~/artifacts/floorp-win-arm64-moz-artifact.zip) ./mach build
           elif [ "${{inputs.platform}}" == "Linux-x64" ]; then
             MOZ_ARTIFACT_FILE=$(echo ~/artifacts/floorp-linux-amd64-moz-artifact.tar.xz) ./mach build
           elif [ "${{inputs.platform}}" == "Linux-aarch64" ]; then
