@@ -108,6 +108,8 @@ jobs:
         run: |
           await $`echo "ac_add_options --enable-chrome-format=flat" >> mozconfig`;
 
+          ls ./.github/workflows/mozconfigs
+
           // Copy appropriate mozconfig based on platform
           const mozconfigs = {
             'Windows-x64': './.github/workflows/mozconfigs/win64.mozconfig',
